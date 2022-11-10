@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.Versioning;
 using System.Threading;
 using System.Threading.Tasks;
 using NuGet.Server.Core.Logging;
@@ -171,7 +172,7 @@ namespace NuGet.Server.Core.Infrastructure
         }
 
         /// <summary>
-        /// Package cache containing packages metadata. 
+        /// Package cache containing packages metadata.
         /// This data is generated if it does not exist already.
         /// </summary>
         public async Task<IEnumerable<IServerPackage>> GetPackagesAsync(
@@ -240,16 +241,18 @@ namespace NuGet.Server.Core.Infrastructure
         public async Task<IEnumerable<IServerPackage>> SearchAsync(
             string searchTerm,
             IEnumerable<string> targetFrameworks,
+            IEnumerable<string> missingTargetFrameworks,
             bool allowPrereleaseVersions,
             ClientCompatibility compatibility,
             CancellationToken token)
         {
-            return await SearchAsync(searchTerm, targetFrameworks, allowPrereleaseVersions, false, compatibility, token);
+            return await SearchAsync(searchTerm, targetFrameworks, missingTargetFrameworks, allowPrereleaseVersions, false, compatibility, token);
         }
 
         public async Task<IEnumerable<IServerPackage>> SearchAsync(
             string searchTerm,
             IEnumerable<string> targetFrameworks,
+            IEnumerable<string> missingTargetFrameworks,
             bool allowPrereleaseVersions,
             bool allowUnlistedVersions,
             ClientCompatibility compatibility,
@@ -265,22 +268,85 @@ namespace NuGet.Server.Core.Infrastructure
             {
                 packages = packages.Where(p => p.Listed);
             }
+            if (missingTargetFrameworks.Any())
+            {
+                // Get the list of framework names
+                var frameworkNames = missingTargetFrameworks.Select(frameworkName => VersionUtility.ParseFrameworkName(frameworkName)).ToList();
+                var net6OrAboveFrameworkNames = frameworkNames.Where(x => x.Version.Major >= 6).Distinct().ToList();
+                var net60BelowFrameworkNames = frameworkNames.Except(net6OrAboveFrameworkNames).Distinct().ToList();
+                //first check package compatibility for .net < 6
+                var netPackages = net60BelowFrameworkNames.Any() ? packages
+                     .Where(package =>
+                     {
+                         var supportedFrameworks = package.GetSupportedFrameworks();
+                         return net60BelowFrameworkNames.All(frameworkName => false == VersionUtility.IsCompatible(frameworkName, supportedFrameworks));
+                     }) : packages;
 
+                //Now check compatibility for .net >= 6
+                net6OrAboveFrameworkNames.AddRange(Net6FrameworkCheck(net6OrAboveFrameworkNames));
+
+                var net6Packages = net6OrAboveFrameworkNames.Any() ?
+                    packages
+                     .Where(package =>
+                     {
+                         var supportedFrameworks = package.GetSupportedFrameworks();
+                         return net6OrAboveFrameworkNames.All(frameworkName => false == IsNet6Compatible(frameworkName, supportedFrameworks));
+                     }) : packages;
+
+
+                packages = netPackages.Intersect(net6Packages);
+            }
             if (EnableFrameworkFiltering && targetFrameworks.Any())
             {
                 // Get the list of framework names
-                var frameworkNames = targetFrameworks
-                    .Select(frameworkName => VersionUtility.ParseFrameworkName(frameworkName));
+                var frameworkNames = targetFrameworks.Select(frameworkName => VersionUtility.ParseFrameworkName(frameworkName)).ToList();
+                var net6OrAboveFrameworkNames = frameworkNames.Where(x => x.Version.Major >= 6).Distinct().ToList();
+                var net60BelowFrameworkNames = frameworkNames.Except(net6OrAboveFrameworkNames).Distinct().ToList();
+                //first check package compatibility for .net < 6
+                var netPackages = packages
+                     .Where(package => net60BelowFrameworkNames
+                         .Any(frameworkName => VersionUtility
+                             .IsCompatible(frameworkName, package.GetSupportedFrameworks())));
 
-                packages = packages
-                    .Where(package => frameworkNames
-                        .Any(frameworkName => VersionUtility
-                            .IsCompatible(frameworkName, package.GetSupportedFrameworks())));
+                //Now check compatibility for .net >= 6
+                net6OrAboveFrameworkNames.AddRange(Net6FrameworkCheck(net6OrAboveFrameworkNames));
+                var net6Packages = packages
+                     .Except(netPackages) //This packages are already compatible and don't have to be checked again (distinct result)
+                     .Where(package => net6OrAboveFrameworkNames
+                        .Any(frameworkName =>
+                            IsNet6Compatible(frameworkName, package.GetSupportedFrameworks())));
+
+
+                packages = netPackages.Concat(net6Packages);
             }
 
             return packages;
         }
-
+        private bool IsNet6Compatible(FrameworkName frameworkName, IEnumerable<FrameworkName> supportedPackageFrameworks)
+        {
+            if (string.IsNullOrWhiteSpace(frameworkName.Profile)) //If .net 6 has no profile, the packages don't have a profile as well
+                return supportedPackageFrameworks.Any(x => x.Version >= frameworkName.Version && string.IsNullOrWhiteSpace(x.Profile));
+            else //If .net 6 has a profile, the profile of the package have to be the same or empty
+                return supportedPackageFrameworks.Any(x => x.Version >= frameworkName.Version && (x.Profile.StartsWith(frameworkName.Profile) || string.IsNullOrWhiteSpace(x.Profile)));
+        }
+        private ICollection<FrameworkName> Net6FrameworkCheck(IReadOnlyCollection<FrameworkName> frameworkNames)
+        {
+            List<FrameworkName> result = new List<FrameworkName>();
+            //Adding frameworks
+            foreach (var item in frameworkNames)
+            {
+                if (item.Version.Major >= 6) //.NET 6.0
+                {
+                    if (!string.IsNullOrWhiteSpace(item.Profile)) //Constraint like net6.0-windows or -linux
+                    {
+                        var fn = new FrameworkName(item.Identifier, item.Version);
+                        if (!frameworkNames.Contains(fn))
+                            result.Add(fn);
+                    }
+                }
+            }
+            return result;
+        }
         internal async Task AddPackagesFromDropFolderAsync(CancellationToken token)
         {
             using (await LockAndSuppressFileSystemWatcherAsync(token))
@@ -510,7 +576,7 @@ namespace NuGet.Server.Core.Infrastructure
         /// <summary>
         /// Loads all packages from disk and determines additional metadata such as the hash,
         /// IsAbsoluteLatestVersion, and IsLatestVersion.
-        /// 
+        ///
         /// This method requires <see cref="LockAndSuppressFileSystemWatcherAsync(CancellationToken)"/>.
         /// </summary>
         private async Task<HashSet<ServerPackage>> ReadPackagesFromDiskWithoutLockingAsync(CancellationToken token)

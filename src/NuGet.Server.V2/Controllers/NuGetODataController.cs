@@ -33,7 +33,7 @@ namespace NuGet.Server.V2.Controllers
         protected readonly IPackageAuthenticationService _authenticationService;
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="repository">Required.</param>
         /// <param name="authenticationService">Optional. If this is not supplied Upload/Delete is not available (requests returns 403 Forbidden)</param>
@@ -131,18 +131,21 @@ namespace NuGet.Server.V2.Controllers
             ODataQueryOptions<ODataPackage> options,
             [FromODataUri] string searchTerm = "",
             [FromODataUri] string targetFramework = "",
+            [FromODataUri] string missingTargetFramework = "",
             [FromODataUri] bool includePrerelease = false,
             [FromODataUri] bool includeDelisted = false,
             [FromUri] string semVerLevel = "",
             CancellationToken token = default(CancellationToken))
         {
             var targetFrameworks = String.IsNullOrEmpty(targetFramework) ? Enumerable.Empty<string>() : targetFramework.Split('|');
+            var missingTargetFrameworks = String.IsNullOrEmpty(missingTargetFramework) ? Enumerable.Empty<string>() : missingTargetFramework.Split('|');
 
             var clientCompatibility = ClientCompatibilityFactory.FromProperties(semVerLevel);
 
             var sourceQuery = await _serverRepository.SearchAsync(
                 searchTerm,
                 targetFrameworks,
+                missingTargetFrameworks,
                 includePrerelease,
                 includeDelisted,
                 clientCompatibility,
@@ -157,6 +160,7 @@ namespace NuGet.Server.V2.Controllers
             ODataQueryOptions<ODataPackage> options,
             [FromODataUri] string searchTerm = "",
             [FromODataUri] string targetFramework = "",
+            [FromODataUri] string missingTargetFramework = "",
             [FromODataUri] bool includePrerelease = false,
             [FromODataUri] bool includeDelisted = false,
             [FromUri] string semVerLevel = "",
@@ -166,6 +170,7 @@ namespace NuGet.Server.V2.Controllers
                 options,
                 searchTerm,
                 targetFramework,
+                missingTargetFramework,
                 includePrerelease,
                 includeDelisted,
                 semVerLevel,

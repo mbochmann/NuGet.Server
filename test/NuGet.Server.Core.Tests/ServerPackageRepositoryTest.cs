@@ -301,6 +301,7 @@ namespace NuGet.Server.Core.Tests
                 var actual = await serverRepository.SearchAsync(
                     "test",
                     targetFrameworks: Enumerable.Empty<string>(),
+                    missingTargetFrameworks: Enumerable.Empty<string>(),
                     allowPrereleaseVersions: true,
                     compatibility: ClientCompatibility.Default,
                     token: Token);

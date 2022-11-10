@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30517.14
+# Visual Studio Version 17
+VisualStudioVersion = 17.1.32210.238
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{E7B39EAD-EA32-4011-845A-C949A336389A}"
 EndProject
@@ -32,6 +32,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NuGet.Server.V2.Samples.OwinHost", "samples\NuGet.Server.V2.Samples.OwinHost\NuGet.Server.V2.Samples.OwinHost.csproj", "{5CF9DB92-53DE-488E-82F9-4C3F867516B2}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NuGet.Server.V2.Tests", "test\NuGet.Server.V2.Tests\NuGet.Server.V2.Tests.csproj", "{BE64E341-7D99-43D9-A0D2-A38E977B7D97}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Vistron.NugetServer", "..\nuget-server\src\Vistron.NugetServer\Vistron.NugetServer.csproj", "{F1333F42-FCBC-4730-A6CA-4AAAE7D2B992}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -187,6 +189,26 @@ Global
 		{BE64E341-7D99-43D9-A0D2-A38E977B7D97}.Release|Any CPU.Build.0 = Release|Any CPU
 		{BE64E341-7D99-43D9-A0D2-A38E977B7D97}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{BE64E341-7D99-43D9-A0D2-A38E977B7D97}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{F1333F42-FCBC-4730-A6CA-4AAAE7D2B992}.Coverage|Any CPU.ActiveCfg = Debug|Any CPU
+		{F1333F42-FCBC-4730-A6CA-4AAAE7D2B992}.Coverage|Any CPU.Build.0 = Debug|Any CPU
+		{F1333F42-FCBC-4730-A6CA-4AAAE7D2B992}.Coverage|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{F1333F42-FCBC-4730-A6CA-4AAAE7D2B992}.Coverage|Mixed Platforms.Build.0 = Debug|Any CPU
+		{F1333F42-FCBC-4730-A6CA-4AAAE7D2B992}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F1333F42-FCBC-4730-A6CA-4AAAE7D2B992}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F1333F42-FCBC-4730-A6CA-4AAAE7D2B992}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{F1333F42-FCBC-4730-A6CA-4AAAE7D2B992}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{F1333F42-FCBC-4730-A6CA-4AAAE7D2B992}.Mono Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F1333F42-FCBC-4730-A6CA-4AAAE7D2B992}.Mono Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F1333F42-FCBC-4730-A6CA-4AAAE7D2B992}.Mono Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{F1333F42-FCBC-4730-A6CA-4AAAE7D2B992}.Mono Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{F1333F42-FCBC-4730-A6CA-4AAAE7D2B992}.Mono Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F1333F42-FCBC-4730-A6CA-4AAAE7D2B992}.Mono Release|Any CPU.Build.0 = Release|Any CPU
+		{F1333F42-FCBC-4730-A6CA-4AAAE7D2B992}.Mono Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{F1333F42-FCBC-4730-A6CA-4AAAE7D2B992}.Mono Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{F1333F42-FCBC-4730-A6CA-4AAAE7D2B992}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F1333F42-FCBC-4730-A6CA-4AAAE7D2B992}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F1333F42-FCBC-4730-A6CA-4AAAE7D2B992}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{F1333F42-FCBC-4730-A6CA-4AAAE7D2B992}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -33,6 +33,7 @@ namespace NuGet.Server.Core.Infrastructure
             return await repository.SearchAsync(
                 searchTerm,
                 Enumerable.Empty<string>(),
+                Enumerable.Empty<string>(),
                 allowPrereleaseVersions,
                 compatibility,
                 token);
@@ -48,6 +49,7 @@ namespace NuGet.Server.Core.Infrastructure
         {
             return await repository.SearchAsync(
                 searchTerm,
+                Enumerable.Empty<string>(),
                 Enumerable.Empty<string>(),
                 allowPrereleaseVersions,
                 allowUnlistedVersions,

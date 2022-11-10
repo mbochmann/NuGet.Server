@@ -18,6 +18,7 @@ namespace NuGet.Server.Core.Infrastructure
         Task<IEnumerable<IServerPackage>> SearchAsync(
             string searchTerm,
             IEnumerable<string> targetFrameworks,
+            IEnumerable<string> missingTargetFrameworks,
             bool allowPrereleaseVersions,
             ClientCompatibility compatibility,
             CancellationToken token);
@@ -25,6 +26,7 @@ namespace NuGet.Server.Core.Infrastructure
         Task<IEnumerable<IServerPackage>> SearchAsync(
             string searchTerm,
             IEnumerable<string> targetFrameworks,
+            IEnumerable<string> missingTargetFrameworks,
             bool allowPrereleaseVersions,
             bool allowUnlistedVersions,
             ClientCompatibility compatibility,
